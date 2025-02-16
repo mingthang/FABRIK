@@ -137,9 +137,20 @@
     <ClCompile Include="Sources\Main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Sources\Shader.h" />
     <ClInclude Include="Sources\FABRIK.h" />
     <ClInclude Include="Sources\Joint.h" />
     <ClInclude Include="Sources\Salamander.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include=".gitattributes" />
+    <None Include=".gitignore" />
+    <None Include="Sources\circle.fs" />
+    <None Include="Sources\circle.vs" />
+    <None Include="README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="LICENSE.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

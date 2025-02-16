@@ -35,5 +35,22 @@
     <ClInclude Include="Sources\FABRIK.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="Sources\Shader.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include=".gitignore" />
+    <None Include=".gitattributes" />
+    <None Include="README.md" />
+    <None Include="Sources\circle.vs">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="Sources\circle.fs">
+      <Filter>Source Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="LICENSE.txt" />
   </ItemGroup>
 </Project>

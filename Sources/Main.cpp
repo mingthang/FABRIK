@@ -48,14 +48,20 @@ int main()
 	// configure global opengl state
 	glEnable(GL_DEPTH_TEST);
 
+	// Shader
+	Shader circleShader("./Sources/circle.vs", "./Sources/circle.fs");
+
 	// Create Salamander
-	Salamander salamander;
+	Salamander salamander(&circleShader);
 	for (int i = 0; i < 17; i++) {
-		float y = 0.6f - (i * 0.075f);  
+		float y = 0.6f - (i * 0.065f);  
 		float width = 1.0f - (i * 0.05f); 
 		//std::cout << i << ": " << y << " " << width << std::endl;
 		salamander.AddJoint(0.0f, y, width);
 	}
+	salamander.joints[0].width = 0.925f;
+	salamander.joints[1].width = 0.5f;
+	salamander.joints[2].width = 0.7f;
 
 	// render loop
 	while (!glfwWindowShouldClose(window))
