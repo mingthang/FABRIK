@@ -71,7 +71,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>F:\OpenGL\includes;$(IncludePath)</IncludePath>
+    <IncludePath>F:\OpenGL\includes;Sources/;$(IncludePath)</IncludePath>
     <LibraryPath>F:\OpenGL\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -108,6 +108,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>Sources;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -133,20 +134,22 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\glad.c" />
-    <ClCompile Include="Sources\FABRIK.cpp" />
+    <ClCompile Include="Sources\IK\FABRIK.cpp" />
     <ClCompile Include="Sources\Main.cpp" />
+    <ClCompile Include="Sources\Salamander\Leg.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Sources\Shader.h" />
-    <ClInclude Include="Sources\FABRIK.h" />
-    <ClInclude Include="Sources\Joint.h" />
-    <ClInclude Include="Sources\Salamander.h" />
+    <ClInclude Include="Sources\Salamander\Leg.h" />
+    <ClInclude Include="Sources\Utils\Shader.h" />
+    <ClInclude Include="Sources\IK\FABRIK.h" />
+    <ClInclude Include="Sources\IK\Joint.h" />
+    <ClInclude Include="Sources\Salamander\Salamander.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitattributes" />
     <None Include=".gitignore" />
-    <None Include="Sources\circle.fs" />
-    <None Include="Sources\circle.vs" />
+    <None Include="Sources\Salamander\circle.fs" />
+    <None Include="Sources\Salamander\circle.vs" />
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>

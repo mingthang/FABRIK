@@ -3,8 +3,8 @@
 
 #include <iostream>
 
-#include "Salamander.h"
-#include "FABRIK.h"
+#include "Salamander/Salamander.h"
+#include "IK/FABRIK.h"
 
 unsigned int SCR_WIDTH = 800;
 unsigned int SCR_HEIGHT = 600;
@@ -49,19 +49,21 @@ int main()
 	glEnable(GL_DEPTH_TEST);
 
 	// Shader
-	Shader circleShader("./Sources/circle.vs", "./Sources/circle.fs");
+	Shader circleShader("./Sources/Salamander/circle.vs", "./Sources/Salamander/circle.fs");
 
 	// Create Salamander
 	Salamander salamander(&circleShader);
 	for (int i = 0; i < 17; i++) {
-		float y = 0.6f - (i * 0.065f);  
+		float y = 0.6f - (i * 0.06f);  
 		float width = 1.0f - (i * 0.05f); 
 		//std::cout << i << ": " << y << " " << width << std::endl;
-		salamander.AddJoint(0.0f, y, width);
+		salamander.AddBodyJoint(0.0f, y, width);
 	}
-	salamander.joints[0].width = 0.925f;
-	salamander.joints[1].width = 0.5f;
-	salamander.joints[2].width = 0.7f;
+	salamander.bodyJoints[0].width = 0.9f;
+	salamander.bodyJoints[1].width = 0.5f;
+	salamander.AddLeg(1);
+	salamander.AddLeg(7);
+	salamander.bodyJoints[2].width = 0.7f;
 
 	// render loop
 	while (!glfwWindowShouldClose(window))

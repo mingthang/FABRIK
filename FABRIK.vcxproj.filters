@@ -21,32 +21,38 @@
     <ClCompile Include="Sources\Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Sources\FABRIK.cpp">
+    <ClCompile Include="Sources\IK\FABRIK.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\Salamander\Leg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Sources\Joint.h">
+    <ClInclude Include="Sources\IK\Joint.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="Sources\Salamander.h">
+    <ClInclude Include="Sources\Salamander\Salamander.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="Sources\FABRIK.h">
+    <ClInclude Include="Sources\IK\FABRIK.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="Sources\Shader.h">
+    <ClInclude Include="Sources\Utils\Shader.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Salamander\Leg.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />
     <None Include=".gitattributes" />
     <None Include="README.md" />
-    <None Include="Sources\circle.vs">
+    <None Include="Sources\Salamander\circle.vs">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="Sources\circle.fs">
+    <None Include="Sources\Salamander\circle.fs">
       <Filter>Source Files</Filter>
     </None>
   </ItemGroup>
