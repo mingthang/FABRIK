@@ -140,6 +140,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Sources\Salamander\Leg.h" />
+    <ClInclude Include="Sources\Salamander\LegTypes.h" />
     <ClInclude Include="Sources\Utils\Shader.h" />
     <ClInclude Include="Sources\IK\FABRIK.h" />
     <ClInclude Include="Sources\IK\Joint.h" />
@@ -151,6 +152,8 @@
     <None Include="Sources\Salamander\circle.fs" />
     <None Include="Sources\Salamander\circle.vs" />
     <None Include="README.md" />
+    <None Include="Sources\Utils\pixelate.fs" />
+    <None Include="Sources\Utils\pixelate.vs" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="LICENSE.txt" />

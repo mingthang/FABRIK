@@ -13,7 +13,7 @@ public:
 	std::vector<Joint> bodyJoints;
 	std::vector<float> distances;
 	std::vector<Leg> legs;
-	float speed = 0.75f;
+	float speed = 7.0f;
 	Shader* circleShader;
 
 	Salamander(Shader* circleShader): circleShader(circleShader) {
@@ -173,8 +173,15 @@ public:
 		if (dist <= 0.1f)
 			return;
 		// Move the base towards the target smoothly
-		glm::vec2 direction = glm::normalize(target - bodyJoints[0].position);
-		bodyJoints[0].position += direction * speed * deltaTime; // Control speed
+		if (glm::length(target - bodyJoints[0].position) < 0.000001f)
+		{
+			bodyJoints[0].position = target;
+		}
+		else 
+		{
+			glm::vec2 direction = glm::normalize(target - bodyJoints[0].position) * 0.1f;
+			bodyJoints[0].position += direction * speed * deltaTime; // Control speed
+		}
 
 		// Forward Kinematics: Adjust all bodyJoints relative to the base
 		for (size_t i = 1; i < bodyJoints.size(); i++)
@@ -189,14 +196,41 @@ public:
 		// Leg Update
 		for (auto& leg : legs)
 		{
-			glm::vec2 stepPos = leg.ComputeStepPosition();
-			float distanceToStepPos = glm::distance(leg.foot.position, stepPos);
-			if (distanceToStepPos > leg.legLength * 1.0f)
+			if (!leg.isStepping) // If the leg is not currently stepping
 			{
-				// FABRIK
-				leg.SolveLegIK(stepPos);
+				glm::vec2 stepPos = leg.ComputeStepPosition();
+				leg.stepPos = stepPos;
+
+				float distanceToStepPos = glm::distance(leg.foot.position, leg.stepPos);
+				if (distanceToStepPos > leg.legLength * 1.25f) // Step if it's too far
+				{
+					// Ensure alternating step order and prevent simultaneous steps for the same joint
+					if (!leg.bodyJoint->isLegStepping && leg.bodyJoint->lastSteppedLeg != leg.side)
+					{
+						leg.isStepping = true;
+						leg.bodyJoint->isLegStepping = true; // Mark that this joint is stepping
+						leg.bodyJoint->lastSteppedLeg = leg.side; // Update stepping order
+					}
+				}
+			}
+
+			if (leg.isStepping) // Move the leg if stepping
+			{
+				float legSpeed = speed * 2.0f;
+				glm::vec2 direction = leg.stepPos - leg.foot.position; // no need to normalize because of OpenGL 
+				glm::vec2 velocity = direction * 0.125f;
+				glm::vec2 target = leg.foot.position + velocity;
+				leg.SolveLegIK(target);
+
+				if (glm::distance(leg.foot.position, leg.stepPos) < 0.01f) // Threshold check
+				{
+					leg.SolveLegIK(leg.stepPos);
+					leg.isStepping = false;
+					leg.bodyJoint->isLegStepping = false;
+				}
 			}
 		}
+
 	}
 
 

@@ -18,7 +18,7 @@ glm::vec2 Leg::ComputeStepPosition()
 
     glm::vec2 moveDirection = glm::normalize(bodyJoint->prevJoint->position - bodyJoint->position);
 
-    float angle = glm::radians(side == ELegSide::LEFT ? 45.0f : -45.0f);
+    float angle = glm::radians(side == ELegSide::LEFT ? 40.0f : -40.0f);
     glm::mat2 rotationMatrix = glm::mat2(
         glm::cos(angle), -glm::sin(angle),
         glm::sin(angle), glm::cos(angle)
@@ -41,4 +41,6 @@ void Leg::SolveLegIK(glm::vec2 target)
 
     elbow = joints[1];
     foot = joints[2];
+    //elbow.position = glm::mix(elbow.position, joints[1].position, 0.1f);
+    //foot.position = glm::mix(foot.position, joints[2].position, 0.1f);
 }

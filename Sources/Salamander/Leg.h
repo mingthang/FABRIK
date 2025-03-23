@@ -2,9 +2,8 @@
 
 #include "IK/Joint.h"
 #include "IK/FABRIK.h"
+#include "LegTypes.h"
 #include <vector>
-
-enum class ELegSide { LEFT, RIGHT };
 
 struct Leg
 {
@@ -14,7 +13,11 @@ public:
 	Joint foot;
 	Joint elbow;
 	float footWidth = 0.2f;
-	float legLength = 0.125f;
+	float legLength = 0.15f;
+	// step Position
+	glm::vec2 stepPos;
+	bool isStepping = false;
+
 
 	Leg(Joint* bodyJoint, ELegSide side);
 

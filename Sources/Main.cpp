@@ -54,11 +54,12 @@ int main()
 	// Create Salamander
 	Salamander salamander(&circleShader);
 	for (int i = 0; i < 17; i++) {
-		float y = 0.6f - (i * 0.06f);  
+		float y = 0.1 - (i * 0.06f);  
 		float width = 1.0f - (i * 0.05f); 
 		//std::cout << i << ": " << y << " " << width << std::endl;
 		salamander.AddBodyJoint(0.0f, y, width);
 	}
+
 	salamander.bodyJoints[0].width = 0.9f;
 	salamander.bodyJoints[1].width = 0.5f;
 	salamander.AddLeg(1);

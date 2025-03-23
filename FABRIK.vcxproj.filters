@@ -44,6 +44,9 @@
     <ClInclude Include="Sources\Salamander\Leg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Sources\Salamander\LegTypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />
@@ -55,6 +58,8 @@
     <None Include="Sources\Salamander\circle.fs">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="Sources\Utils\pixelate.vs" />
+    <None Include="Sources\Utils\pixelate.fs" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="LICENSE.txt" />
