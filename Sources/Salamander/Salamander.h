@@ -13,7 +13,7 @@ public:
 	std::vector<Joint> bodyJoints;
 	std::vector<float> distances;
 	std::vector<Leg> legs;
-	float speed = 7.0f;
+	float speed = 5.0f;
 	Shader* circleShader;
 
 	Salamander(Shader* circleShader): circleShader(circleShader) {
@@ -169,29 +169,7 @@ public:
 	{
 		if (bodyJoints.empty()) return;
 
-		float dist = glm::distance(bodyJoints[0].position, target);
-		if (dist <= 0.1f)
-			return;
-		// Move the base towards the target smoothly
-		if (glm::length(target - bodyJoints[0].position) < 0.000001f)
-		{
-			bodyJoints[0].position = target;
-		}
-		else 
-		{
-			glm::vec2 direction = glm::normalize(target - bodyJoints[0].position) * 0.1f;
-			bodyJoints[0].position += direction * speed * deltaTime; // Control speed
-		}
-
-		// Forward Kinematics: Adjust all bodyJoints relative to the base
-		for (size_t i = 1; i < bodyJoints.size(); i++)
-		{
-			glm::vec2 prevToCurrent = bodyJoints[i].position - bodyJoints[i - 1].position;
-			glm::vec2 newDirection = glm::normalize(prevToCurrent);
-
-			// Keep joint distance fixed
-			bodyJoints[i].position = bodyJoints[i - 1].position + newDirection * distances[i - 1];
-		}
+		float pullStrength = 0.002f;
 
 		// Leg Update
 		for (auto& leg : legs)
@@ -228,7 +206,58 @@ public:
 					leg.isStepping = false;
 					leg.bodyJoint->isLegStepping = false;
 				}
+
+				// Torque effect
+				glm::vec2 pullVector = leg.foot.position - leg.bodyJoint->position;
+				if (glm::length(pullVector) > 0.0001f)
+				{
+					glm::vec2 pullOffset = glm::normalize(pullVector) * pullStrength;
+					int jointIndex = -1;
+					for (size_t i = 0; i < bodyJoints.size(); i++)
+					{
+						if (&bodyJoints[i] == leg.bodyJoint)
+						{
+							jointIndex = i;
+							break;
+						}
+					}
+
+					if (jointIndex != -1)
+					{
+						int count = bodyJoints.size() - jointIndex;
+						for (size_t j = jointIndex; j < bodyJoints.size(); j++)
+						{
+							// Pull strength decreasing
+							float factor = 1.0f - float(j - jointIndex) / float(count);
+							bodyJoints[j].position += pullOffset * factor;
+						}
+					}
+				}
 			}
+		}
+
+		float dist = glm::distance(bodyJoints[0].position, target);
+		if (dist <= 0.1f)
+			return;
+		// Move the base towards the target smoothly
+		if (glm::length(target - bodyJoints[0].position) < 0.000001f)
+		{
+			bodyJoints[0].position = target;
+		}
+		else 
+		{
+			glm::vec2 direction = glm::normalize(target - bodyJoints[0].position) * 0.1f;
+			bodyJoints[0].position += direction * speed * deltaTime; // Control speed
+		}
+
+		// Forward Kinematics: Adjust all bodyJoints relative to the base
+		for (size_t i = 1; i < bodyJoints.size(); i++)
+		{
+			glm::vec2 prevToCurrent = bodyJoints[i].position - bodyJoints[i - 1].position;
+			glm::vec2 newDirection = glm::normalize(prevToCurrent);
+
+			// Keep joint distance fixed
+			bodyJoints[i].position = bodyJoints[i - 1].position + newDirection * distances[i - 1];
 		}
 
 	}
@@ -241,4 +270,6 @@ private:
 	std::vector<glm::vec2> circleVertices;
 	GLuint legVAO, legVBO;
 	std::vector<glm::vec2> legVertices;
+
+	float bodyRotation = 0.0f;
 };

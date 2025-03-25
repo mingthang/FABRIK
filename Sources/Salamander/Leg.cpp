@@ -41,6 +41,4 @@ void Leg::SolveLegIK(glm::vec2 target)
 
     elbow = joints[1];
     foot = joints[2];
-    //elbow.position = glm::mix(elbow.position, joints[1].position, 0.1f);
-    //foot.position = glm::mix(foot.position, joints[2].position, 0.1f);
 }
