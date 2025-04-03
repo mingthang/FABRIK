@@ -18,33 +18,36 @@
     <ClCompile Include="..\..\glad.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Sources\Main.cpp">
+    <ClCompile Include="src\Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Sources\IK\FABRIK.cpp">
+    <ClCompile Include="src\IK\FABRIK.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Sources\Salamander\Leg.cpp">
+    <ClCompile Include="src\Salamander\Leg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Sources\IK\Joint.h">
+    <ClInclude Include="src\IK\Joint.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="Sources\Salamander\Salamander.h">
+    <ClInclude Include="src\Salamander\Salamander.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="Sources\IK\FABRIK.h">
+    <ClInclude Include="src\IK\FABRIK.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="Sources\Utils\Shader.h">
+    <ClInclude Include="src\Utils\Shader.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="Sources\Salamander\Leg.h">
+    <ClInclude Include="src\Salamander\Leg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Sources\Salamander\LegTypes.h">
+    <ClInclude Include="src\Salamander\LegTypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utils\Util.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -52,14 +55,14 @@
     <None Include=".gitignore" />
     <None Include=".gitattributes" />
     <None Include="README.md" />
-    <None Include="Sources\Salamander\circle.vs">
+    <None Include="src\Salamander\circle.vs">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="Sources\Salamander\circle.fs">
+    <None Include="src\Salamander\circle.fs">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="Sources\Utils\pixelate.vs" />
-    <None Include="Sources\Utils\pixelate.fs" />
+    <None Include="src\Utils\pixelate.vs" />
+    <None Include="src\Utils\pixelate.fs" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="LICENSE.txt" />

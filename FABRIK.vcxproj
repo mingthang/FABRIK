@@ -71,8 +71,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>F:\OpenGL\includes;Sources/;$(IncludePath)</IncludePath>
-    <LibraryPath>F:\OpenGL\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -108,12 +108,15 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>Sources;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>vendor\include;src;vendor\include\fmod;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>vendor\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -134,26 +137,27 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\glad.c" />
-    <ClCompile Include="Sources\IK\FABRIK.cpp" />
-    <ClCompile Include="Sources\Main.cpp" />
-    <ClCompile Include="Sources\Salamander\Leg.cpp" />
+    <ClCompile Include="src\IK\FABRIK.cpp" />
+    <ClCompile Include="src\Main.cpp" />
+    <ClCompile Include="src\Salamander\Leg.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Sources\Salamander\Leg.h" />
-    <ClInclude Include="Sources\Salamander\LegTypes.h" />
-    <ClInclude Include="Sources\Utils\Shader.h" />
-    <ClInclude Include="Sources\IK\FABRIK.h" />
-    <ClInclude Include="Sources\IK\Joint.h" />
-    <ClInclude Include="Sources\Salamander\Salamander.h" />
+    <ClInclude Include="src\Salamander\Leg.h" />
+    <ClInclude Include="src\Salamander\LegTypes.h" />
+    <ClInclude Include="src\Utils\Shader.h" />
+    <ClInclude Include="src\IK\FABRIK.h" />
+    <ClInclude Include="src\IK\Joint.h" />
+    <ClInclude Include="src\Salamander\Salamander.h" />
+    <ClInclude Include="src\Utils\Util.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitattributes" />
     <None Include=".gitignore" />
-    <None Include="Sources\Salamander\circle.fs" />
-    <None Include="Sources\Salamander\circle.vs" />
+    <None Include="src\Salamander\circle.fs" />
+    <None Include="src\Salamander\circle.vs" />
     <None Include="README.md" />
-    <None Include="Sources\Utils\pixelate.fs" />
-    <None Include="Sources\Utils\pixelate.vs" />
+    <None Include="src\Utils\pixelate.fs" />
+    <None Include="src\Utils\pixelate.vs" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="LICENSE.txt" />
