@@ -140,6 +140,8 @@
     <ClCompile Include="src\IK\FABRIK.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\Salamander\Leg.cpp" />
+    <ClCompile Include="src\Salamander\Salamander.cpp" />
+    <ClCompile Include="src\Utils\EngineDefines.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Salamander\Leg.h" />
