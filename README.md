@@ -6,7 +6,7 @@ A simple 2D inverse kinematics simulation using the FABRIK (Forward And Backward
 
 ## Showcase
 <p align="center">
-  <img src="https://github.com/mingthang/FABRIK/blob/master/res/fabrik.gif" width="50%" />
+  <img src="https://github.com/mingthang/FABRIK/blob/master/res/fabrik.gif" width="75%" />
 </p>
 
 ## Third Party Libraries Used
