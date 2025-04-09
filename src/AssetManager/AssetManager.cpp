@@ -102,6 +102,28 @@ namespace AssetManager {
 
         int meshIndex = CreateMesh("CircleOutline", circleVertices, circleIndices, aabbMin, aabbMax);
         model->AddMeshIndex(meshIndex);
+
+        /* Circle Fill */
+        std::vector<glm::vec2> circleFillVertices;
+        std::vector<uint32_t> circleFillIndices;
+
+        circleFillVertices.emplace_back(0.0f, 0.0f); // center vertex
+        for (int i = 0; i < circleSegments; ++i) {
+            float angle = i * 2.0f * 3.1415926f / circleSegments;
+            float x = radius * cos(angle);
+            float y = radius * sin(angle);
+            circleFillVertices.emplace_back(x, y);
+        }
+
+        for (int i = 1; i <= circleSegments; ++i) {
+            circleFillIndices.push_back(0);        // center
+            circleFillIndices.push_back(i);        // current
+            circleFillIndices.push_back(i % circleSegments + 1); // next
+        }
+
+        auto [fillAABBMin, fillAABBMax] = Util::ComputeAABB(circleFillVertices);
+        int fillIndex = CreateMesh("CircleFill", circleFillVertices, circleFillIndices, fillAABBMin, fillAABBMax);
+        model->AddMeshIndex(fillIndex);
     }
 
     void BuildIndexMaps() {

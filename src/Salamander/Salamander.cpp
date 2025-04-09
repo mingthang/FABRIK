@@ -33,8 +33,8 @@ Salamander::Salamander(const SalamanderConfig& config) {
 	// Add legs
 	for (int idx : config.legIndices) {
 		AddLeg(idx);
+		m_legIndices.push_back(idx);
 	}
-
 }
 
 void Salamander::AddBodyJoint(float x, float y, float width, bool bHasLegs)
@@ -52,17 +52,15 @@ void Salamander::AddLeg(int bodyIndex) {
 }
 
 void Salamander::Draw() {
-	// Draw line body
+	// Draw body
 	for (size_t i = 0; i < m_bodyJoints.size() - 1; ++i) {
 		glm::vec2 p0 = m_bodyJoints[i].position;
 		glm::vec2 p1 = m_bodyJoints[i + 1].position;
 		Renderer::DrawLine(p0, p1);
-	}
-
-	// Draw joint circles
-	for (const auto& joint : m_bodyJoints) {
-		//Renderer::DrawPoint(joint.position);
-		Renderer::DrawCircle(joint.position, joint.width * 0.25f);
+		if (std::find(m_legIndices.begin(), m_legIndices.end(), i) != m_legIndices.end())
+			Renderer::DrawCircle(m_bodyJoints[i].position, m_bodyJoints[i].width * 0.25f);
+		else
+			Renderer::DrawCircle(m_bodyJoints[i].position, m_bodyJoints[i].width * 0.25f);
 	}
 
 	// Draw legs
@@ -82,7 +80,7 @@ void Salamander::Draw() {
 			Renderer::DrawLine(a, b);
 		}
 
-		Renderer::DrawCircle(leg.foot.position, leg.footWidth);
+		Renderer::DrawCircle(leg.foot.position, leg.footWidth, glm::vec3(0.294f, 0.0f, 0.51f), true);
 	}
 }
 
@@ -142,7 +140,7 @@ void Salamander::Move(glm::vec2 target, float deltaTime)
 
 			float distanceToStepPos = glm::distance(leg.foot.position, newStepPos);
 	
-			if (distanceToStepPos > leg.legLength) // Step if it's too far
+			if (distanceToStepPos > leg.legLength * 1.1f) // Step if it's too far
 			{
 				// Ensure alternating step order and prevent simultaneous steps for the same joint
 				if (!leg.bodyJoint->isLegStepping && leg.bodyJoint->lastSteppedLeg != leg.side)
@@ -161,6 +159,7 @@ void Salamander::Move(glm::vec2 target, float deltaTime)
 			float distanceToStep = glm::distance(leg.foot.position, leg.stepPos);
 			float moveDist = legspeed * deltaTime;
 			glm::vec2 target;
+			leg.stepPos = leg.ComputeStepPosition();
 
 			if (moveDist >= distanceToStep) {
 				target = leg.stepPos;
@@ -172,6 +171,7 @@ void Salamander::Move(glm::vec2 target, float deltaTime)
 				target = leg.foot.position + direction * moveDist;
 			}
 
+			// TODO: Fix this mess
 			std::vector<Joint> joints = {
 				*leg.bodyJoint,
 				leg.elbow,
@@ -186,30 +186,28 @@ void Salamander::Move(glm::vec2 target, float deltaTime)
 			leg.elbow.position = joints[1].position;
 			leg.foot.position = joints[2].position;
 
-			// Torque effect
 			glm::vec2 pullVector = leg.foot.position - leg.bodyJoint->position;
-			if (glm::length(pullVector) > 0.001f)
+			float len = glm::length(pullVector);
+			if (len > 0.001f)
 			{
-				glm::vec2 pullOffset = glm::normalize(pullVector) * m_pullStrength;
+				glm::vec2 pullDir = pullVector / len;
+				glm::vec2 rawOffset = pullDir * m_pullStrength;
 				int jointIndex = -1;
-				for (size_t i = 0; i < m_bodyJoints.size(); i++)
-				{
-					if (&m_bodyJoints[i] == leg.bodyJoint)
-					{
-						jointIndex = i;
+				for (size_t i = 0; i < m_bodyJoints.size(); ++i) {
+					if (&m_bodyJoints[i] == leg.bodyJoint) {
+						jointIndex = static_cast<int>(i);
 						break;
 					}
 				}
 
-				if (jointIndex != -1)
+				int count = m_bodyJoints.size() - jointIndex;
+
+				for (size_t j = jointIndex; j < m_bodyJoints.size(); j++)
 				{
-					int count = m_bodyJoints.size() - jointIndex;
-					for (size_t j = jointIndex; j < m_bodyJoints.size(); j++)
-					{
-						// Pull strength decreasing
-						float factor = 1.0f - float(j - jointIndex) / float(count);
-						m_bodyJoints[j].position += pullOffset * factor;
-					}
+					float factor = 1.0f - float(j - jointIndex) / float(count);
+					glm::vec2 desired = m_bodyJoints[j].position + rawOffset * factor;
+					float damp = 0.2f;
+					m_bodyJoints[j].position = glm::mix(m_bodyJoints[j].position, desired, damp);
 				}
 			}
 		}

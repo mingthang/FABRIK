@@ -19,14 +19,16 @@ glm::vec2 Leg::ComputeStepPosition()
 
     glm::vec2 moveDirection = glm::normalize(bodyJoint->prevJoint->position - bodyJoint->position);
 
-    float angle = glm::radians(side == ELegSide::LEFT ? 40.0f : -40.0f);
+    float angle = glm::radians(side == ELegSide::LEFT ? 70.0f : -70.0f);
     glm::mat2 rotationMatrix = glm::mat2(
         glm::cos(angle), -glm::sin(angle),
         glm::sin(angle), glm::cos(angle)
     );
     glm::vec2 offset = rotationMatrix * moveDirection;
 
-    glm::vec2 finalPos = bodyJoint->position + glm::normalize(moveDirection + offset) * legLength;
+    glm::vec2 finalPos = bodyJoint->position + glm::normalize(moveDirection + offset) * legLength * 0.9f ;
+
+    //Renderer::DrawPoint(finalPos);
 
     return finalPos;
 }

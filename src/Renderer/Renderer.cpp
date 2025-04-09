@@ -10,6 +10,7 @@ namespace Renderer
 	struct CircleDrawCommand {
 		glm::mat4 modelMatrix;
 		glm::vec3 color;
+		bool fill;
 	};
 
     GLuint g_VAO, g_VBO, g_EBO;
@@ -79,6 +80,7 @@ namespace Renderer
 		// Draw lines
 		if (!g_lines.empty()) {
 			g_shaders["debug"].SetMat4("u_model", glm::mat4(1.0f));
+			g_shaders["debug"].SetVec3("u_color", glm::vec3(0.0f));
 			glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * g_lines.size(), g_lines.data(), GL_DYNAMIC_DRAW);
 			glEnableVertexAttribArray(0);
 			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)0);
@@ -90,6 +92,7 @@ namespace Renderer
 		// Draw points
 		if (!g_points.empty()) {
 			g_shaders["debug"].SetMat4("u_model", glm::mat4(1.0f));
+			g_shaders["debug"].SetVec3("u_color", glm::vec3(0.0f));
 			glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * g_points.size(), g_points.data(), GL_DYNAMIC_DRAW);
 			glEnableVertexAttribArray(0);
 			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)0);
@@ -99,10 +102,18 @@ namespace Renderer
 		}
 
 		if (!g_circles.empty()) {
-			int circleMeshIndex = AssetManager::GetMeshIndexByModelNameMeshName("2D_Primitives", "CircleOutline");
-			Mesh2D* mesh = AssetManager::GetMeshByIndex(circleMeshIndex);
-			if (!mesh) {
-				std::cout << "Failed to get circle mesh!" << std::endl;
+			int circleFillMeshIndex = AssetManager::GetMeshIndexByModelNameMeshName("2D_Primitives", "CircleFill");
+			Mesh2D* fillMesh = AssetManager::GetMeshByIndex(circleFillMeshIndex);
+
+			int circleOutlineMeshIndex = AssetManager::GetMeshIndexByModelNameMeshName("2D_Primitives", "CircleOutline");
+			Mesh2D* outlineMesh = AssetManager::GetMeshByIndex(circleOutlineMeshIndex);
+
+			if (!fillMesh) {
+				std::cout << "Failed to get circle fill mesh!" << std::endl;
+				return;
+			}
+			if (!outlineMesh) {
+				std::cout << "Failed to get circle outline mesh!" << std::endl;
 				return;
 			}
 
@@ -118,13 +129,27 @@ namespace Renderer
 
 			for (const auto& cmd : g_circles) {
 				g_shaders["debug"].SetMat4("u_model", cmd.modelMatrix);
-				glDrawElementsBaseVertex(
-					GL_LINE_LOOP,
-					mesh->indexCount,
-					GL_UNSIGNED_INT,
-					(void*)(sizeof(uint32_t) * mesh->baseIndex),
-					mesh->baseVertex
-				);
+				g_shaders["debug"].SetVec3("u_color", cmd.color);
+				if (cmd.fill) {
+					glDrawElementsBaseVertex(
+						GL_TRIANGLES,
+						fillMesh->indexCount,
+						GL_UNSIGNED_INT,
+						(void*)(sizeof(uint32_t) * fillMesh->baseIndex),
+						fillMesh->baseVertex
+					);
+				}
+
+				else {
+					g_shaders["debug"].SetVec3("u_color", glm::vec3(0.0f)); // black
+					glDrawElementsBaseVertex(
+						GL_LINE_LOOP,
+						outlineMesh->indexCount,
+						GL_UNSIGNED_INT,
+						(void*)(sizeof(uint32_t) * outlineMesh->baseIndex),
+						outlineMesh->baseVertex
+					);
+				}
 			}
 		}
 
@@ -136,20 +161,21 @@ namespace Renderer
 		g_circles.clear();
     }
 
-    void DrawPoint(glm::vec2 position, glm::vec3 color, bool obeyDepth) {
+    void DrawPoint(glm::vec2 position, bool obeyDepth) {
         g_points.push_back(position);
     }
 
-    void DrawLine(glm::vec2 begin, glm::vec2 end, glm::vec3 color, bool obeyDepth) {
+    void DrawLine(glm::vec2 begin, glm::vec2 end, bool obeyDepth) {
         g_lines.push_back(begin);
         g_lines.push_back(end);
     }
 
-	void DrawCircle(glm::vec2 position, float radius, glm::vec3 color, bool obeyDepth) {
+	void DrawCircle(glm::vec2 position, float radius, glm::vec3 color, bool fill, bool obeyDepth) {
 		g_circles.push_back({
 			glm::translate(glm::mat4(1.0f), glm::vec3(position, 0.0f))
 			* glm::scale(glm::mat4(1.0f), glm::vec3(radius)),
-			color
+			color,
+			fill
 			});
 	}
 }

@@ -11,7 +11,7 @@ namespace Renderer
 
     void SalamanderPass();
 
-    void DrawPoint(glm::vec2 position, glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f), bool obeyDepth = false);
-    void DrawLine(glm::vec2 begin, glm::vec2 end, glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f), bool obeyDepth = false);
-    void DrawCircle(glm::vec2 position, float radius, glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f), bool obeyDepth = false);
+    void DrawPoint(glm::vec2 position, bool obeyDepth = false);
+    void DrawLine(glm::vec2 begin, glm::vec2 end, bool obeyDepth = false);
+    void DrawCircle(glm::vec2 position, float radius, glm::vec3 color = glm::vec3(0.0f, 0.0f, 0.0f), bool fill = false, bool obeyDepth = false);
 }

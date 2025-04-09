@@ -30,6 +30,7 @@ private:
     std::vector<Joint> m_bodyJoints;
     std::vector<float> m_distances;
     std::vector<Leg> m_legs;
-    float m_speed = 150.0f;
-    float m_pullStrength = 0.75f;
+	std::vector<int> m_legIndices;
+    float m_speed = 200.0f;
+    float m_pullStrength = 5.0f;
 };
