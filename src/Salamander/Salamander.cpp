@@ -3,183 +3,115 @@
 #include <list>
 #include <vector>
 #include "Utils/Util.h"
+#include <Renderer/Types/Model2D.h>
+#include <AssetManager/AssetManager.h>
+#include <Renderer/Renderer.h>
+#include <iostream>
 
+Salamander::Salamander(const SalamanderConfig& config) {
+	for (int i = 0; i < config.numJoints; ++i) {
+		float y = config.startY - i * config.yStep;
+		float width = config.startWidth - i * config.widthStep;
 
-Salamander::Salamander(Shader* circleShader) : circleShader(circleShader) {
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-	glGenVertexArrays(1, &circleVAO);
-	glGenBuffers(1, &circleVBO);
-	glGenVertexArrays(1, &legVAO);
-	glGenBuffers(1, &legVBO);
+		// Check for width override
+		if (config.overrideWidths.find(i) != config.overrideWidths.end()) {
+			width = config.overrideWidths.at(i);
+		}
 
-	bodyJoints.reserve(100); // Reserve space for 100 joints
-
-	GenerateCircleVertices();
-}
-
-Salamander::~Salamander() {
-	glDeleteBuffers(1, &VBO);
-	glDeleteVertexArrays(1, &VAO);
-	glDeleteBuffers(1, &circleVBO);
-	glDeleteVertexArrays(1, &circleVAO);
-	glDeleteBuffers(1, &legVBO);
-	glDeleteVertexArrays(1, &legVAO);
-}
-
-void Salamander::AddBodyJoint(float x, float y, float width, bool hasLegs)
-{
-	Joint* prevJoint = bodyJoints.empty() ? nullptr : &bodyJoints.back();
-	bodyJoints.emplace_back(x, y, width, prevJoint);
-	if (bodyJoints.size() > 1)
-	{
-		auto last = std::prev(bodyJoints.end());
-		auto secondLast = std::prev(last);
-		distances.push_back(glm::distance(last->position, secondLast->position));
+		AddBodyJoint(400.0f, y, width);
 	}
+
+	// prevJoint pointers setup
+	for (size_t i = 1; i < m_bodyJoints.size(); ++i) {
+		m_bodyJoints[i].prevJoint = &m_bodyJoints[i - 1];
+		m_distances.push_back(glm::distance(
+			m_bodyJoints[i].position,
+			m_bodyJoints[i - 1].position
+		));
+	}
+
+	// Add legs
+	for (int idx : config.legIndices) {
+		AddLeg(idx);
+	}
+
+}
+
+void Salamander::AddBodyJoint(float x, float y, float width, bool bHasLegs)
+{
+	//Joint* prevJoint = m_bodyJoints.empty() ? nullptr : &m_bodyJoints.back();
+	m_bodyJoints.emplace_back(x, y, width, nullptr);
 }
 
 void Salamander::AddLeg(int bodyIndex) {
-	if (bodyIndex > 0 && bodyIndex < bodyJoints.size())
+	if (bodyIndex > 0 && bodyIndex < m_bodyJoints.size())
 	{
-		legs.emplace_back(&bodyJoints[bodyIndex], ELegSide::LEFT);
-		legs.emplace_back(&bodyJoints[bodyIndex], ELegSide::RIGHT);
+		m_legs.emplace_back(&m_bodyJoints[bodyIndex], ELegSide::LEFT);
+		m_legs.emplace_back(&m_bodyJoints[bodyIndex], ELegSide::RIGHT);
 	}
 }
 
-void Salamander::UpdateBuffer()
-{
-	vertices.clear();
-	for (const auto& joint : bodyJoints)
-		vertices.push_back(joint.position);
-
-	glBindVertexArray(VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec2), vertices.data(), GL_DYNAMIC_DRAW);
-
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)0);
-	glEnableVertexAttribArray(0);
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-
-	legVertices.clear();
-	for (const auto& leg : legs)
-	{
-		legVertices.push_back(leg.bodyJoint->position);
-		legVertices.push_back(leg.elbow.position);
-		legVertices.push_back(leg.foot.position);
+void Salamander::Draw() {
+	// Draw line body
+	for (size_t i = 0; i < m_bodyJoints.size() - 1; ++i) {
+		glm::vec2 p0 = m_bodyJoints[i].position;
+		glm::vec2 p1 = m_bodyJoints[i + 1].position;
+		Renderer::DrawLine(p0, p1);
 	}
 
-	glBindVertexArray(legVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, legVBO);
-	glBufferData(GL_ARRAY_BUFFER, legVertices.size() * sizeof(glm::vec2), legVertices.data(), GL_DYNAMIC_DRAW);
-
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)0);
-	glEnableVertexAttribArray(0);
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-}
-
-void Salamander::GenerateCircleVertices(int segments) {
-	circleVertices.clear();
-	float angleStep = 2.0f * 3.1415926f / float(segments);
-
-	for (int i = 0; i < segments; i++) {
-		float angle = i * angleStep;
-		circleVertices.push_back(0.1f * glm::vec2(cos(angle), sin(angle)));
+	// Draw joint circles
+	for (const auto& joint : m_bodyJoints) {
+		//Renderer::DrawPoint(joint.position);
+		Renderer::DrawCircle(joint.position, joint.width * 0.25f);
 	}
 
-	glBindVertexArray(circleVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, circleVBO);
-	glBufferData(GL_ARRAY_BUFFER, circleVertices.size() * sizeof(glm::vec2), circleVertices.data(), GL_STATIC_DRAW);
+	// Draw legs
+	for (const auto& leg : m_legs) {
+		glm::vec2 p0 = leg.bodyJoint->position;
+		glm::vec2 p1 = leg.elbow.position;
+		glm::vec2 p2 = leg.foot.position;
 
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)0);
-	glEnableVertexAttribArray(0);
+		const int segmentCount = 6;
+		for (int i = 0; i < segmentCount; ++i) {
+			float t0 = float(i) / segmentCount;
+			float t1 = float(i + 1) / segmentCount;
 
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-}
+			glm::vec2 a = Util::QuadraticBezier(p0, p1, p2, t0);
+			glm::vec2 b = Util::QuadraticBezier(p0, p1, p2, t1);
 
-void Salamander::Draw()
-{
-	UpdateBuffer();
+			Renderer::DrawLine(a, b);
+		}
 
-	glBindVertexArray(VAO);
-	glLineWidth(3.0f);
-	glPointSize(10.0f);
-
-	// Draw the body joints as line strips
-	//glDrawArrays(GL_POINTS, 0, vertices.size());
-	glDrawArrays(GL_LINE_STRIP, 0, vertices.size());
-	glBindVertexArray(0);
-
-	// Draw the body joints as circles
-	circleShader->Use();
-	glBindVertexArray(circleVAO);
-	for (const auto& joint : bodyJoints)
-	{
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(joint.position, 0.0f));
-		model = glm::scale(model, glm::vec3(joint.width * 0.5f, joint.width * 0.5f, 1.0f));
-
-		circleShader->SetMat4("model", model);
-		glDrawArrays(GL_LINE_LOOP, 0, circleVertices.size());
+		Renderer::DrawCircle(leg.foot.position, leg.footWidth);
 	}
-	glUseProgram(0);
-
-	// Draw the legs
-	glBindVertexArray(legVAO);
-	for (size_t i = 0; i < legVertices.size(); i += 3)
-	{
-		glDrawArrays(GL_LINE_STRIP, i, 3);
-	}
-	glBindVertexArray(0);
-	// Draw foot circles
-	for (const auto& leg : legs)
-	{
-		circleShader->Use();
-		glBindVertexArray(circleVAO);
-		glm::mat4 footModel = glm::mat4(1.0f);
-		footModel = glm::translate(footModel, glm::vec3(leg.foot.position, 0.0f));
-		footModel = glm::scale(footModel, glm::vec3(leg.footWidth, leg.footWidth, 1.0f));
-
-		circleShader->SetMat4("model", footModel);
-		glDrawArrays(GL_LINE_LOOP, 0, circleVertices.size());
-	}
-	glUseProgram(0);
-
-	glBindVertexArray(0);
-	glUseProgram(0);
 }
 
 void Salamander::Move(glm::vec2 target, float deltaTime)
 {
-	if (bodyJoints.empty()) return;
+	if (m_bodyJoints.empty()) return;
 
-	float dist = glm::distance(bodyJoints[0].position, target);
+	float dist = glm::distance(m_bodyJoints[0].position, target);
 	if (dist <= 0.1f)
 		return;
 
 	// Move the base towards the target smoothly
-	if (glm::length(target - bodyJoints[0].position) < 0.000001f)
+	if (glm::length(target - m_bodyJoints[0].position) < 0.000001f)
 	{
-		bodyJoints[0].position = target;
+		m_bodyJoints[0].position = target;
 	}
 	else
 	{
-		glm::vec2 direction = glm::normalize(target - bodyJoints[0].position) * 0.1f;
-		bodyJoints[0].position += direction * speed * deltaTime; // Control speed
+		glm::vec2 direction = glm::normalize(target - m_bodyJoints[0].position);
+		m_bodyJoints[0].position += direction * m_speed * deltaTime; // Control speed
 	}
-	// Forward Kinematics: Adjust all bodyJoints relative to the base
-	if (bodyJoints.size() > 1) {
-		glm::vec2 baseToJoint = bodyJoints[1].position - bodyJoints[0].position;
+	// Forward Kinematics: Adjust all m_bodyJoints relative to the base
+	if (m_bodyJoints.size() > 1) {
+		glm::vec2 baseToJoint = m_bodyJoints[1].position - m_bodyJoints[0].position;
 		float cumulativeAngle = glm::atan(baseToJoint.y, baseToJoint.x);
-		bodyJoints[1].position = bodyJoints[0].position + glm::normalize(baseToJoint) * distances[0];
+		m_bodyJoints[1].position = m_bodyJoints[0].position + glm::normalize(baseToJoint) * m_distances[0];
 
-		for (size_t i = 2; i < bodyJoints.size(); i++) {
-			glm::vec2 currentDir = glm::normalize(bodyJoints[i].position - bodyJoints[i - 1].position);
+		for (size_t i = 2; i < m_bodyJoints.size(); i++) {
+			glm::vec2 currentDir = glm::normalize(m_bodyJoints[i].position - m_bodyJoints[i - 1].position);
 			float desiredAngle = glm::atan(currentDir.y, currentDir.x);
 			float angleDiff = desiredAngle - cumulativeAngle;
 
@@ -196,20 +128,21 @@ void Salamander::Move(glm::vec2 target, float deltaTime)
 
 			glm::vec2 newDir = glm::vec2(glm::cos(cumulativeAngle), glm::sin(cumulativeAngle));
 
-			bodyJoints[i].position = bodyJoints[i - 1].position + newDir * distances[i - 1];
+			m_bodyJoints[i].position = m_bodyJoints[i - 1].position + newDir * m_distances[i - 1];
 		}
 	}
 
 
 	// Leg Update
-	for (auto& leg : legs)
+	for (Leg& leg : m_legs)
 	{
 		if (!leg.isStepping) // If the leg is not currently stepping
 		{
 			glm::vec2 newStepPos = leg.ComputeStepPosition();
 
 			float distanceToStepPos = glm::distance(leg.foot.position, newStepPos);
-			if (!leg.isStepping && distanceToStepPos > leg.legLength * 1.0f) // Step if it's too far
+	
+			if (distanceToStepPos > leg.legLength) // Step if it's too far
 			{
 				// Ensure alternating step order and prevent simultaneous steps for the same joint
 				if (!leg.bodyJoint->isLegStepping && leg.bodyJoint->lastSteppedLeg != leg.side)
@@ -224,28 +157,44 @@ void Salamander::Move(glm::vec2 target, float deltaTime)
 
 		if (leg.isStepping) // Move the leg if stepping
 		{
-			float legSpeed = speed * 2.0f;
-			glm::vec2 direction = leg.stepPos - leg.foot.position; // no need to normalize because of OpenGL 
-			glm::vec2 velocity = direction * 0.125f;
-			glm::vec2 target = leg.foot.position + velocity;
-			leg.SolveLegIK(target);
+			float legspeed = m_speed * 3.0f;
+			float distanceToStep = glm::distance(leg.foot.position, leg.stepPos);
+			float moveDist = legspeed * deltaTime;
+			glm::vec2 target;
 
-			if (glm::distance(leg.foot.position, leg.stepPos) < 0.01f) // Threshold check
-			{
-				leg.SolveLegIK(leg.stepPos);
+			if (moveDist >= distanceToStep) {
+				target = leg.stepPos;
 				leg.isStepping = false;
 				leg.bodyJoint->isLegStepping = false;
 			}
+			else {
+				glm::vec2 direction = glm::normalize(leg.stepPos - leg.foot.position);
+				target = leg.foot.position + direction * moveDist;
+			}
+
+			std::vector<Joint> joints = {
+				*leg.bodyJoint,
+				leg.elbow,
+				leg.foot
+			};
+			std::vector<float> distances = {
+				leg.legLength * 0.5f, leg.legLength * 0.5f
+			};
+
+			FABRIK::SolveSEE(joints, distances, target);
+
+			leg.elbow.position = joints[1].position;
+			leg.foot.position = joints[2].position;
 
 			// Torque effect
 			glm::vec2 pullVector = leg.foot.position - leg.bodyJoint->position;
-			if (glm::length(pullVector) > 0.0001f)
+			if (glm::length(pullVector) > 0.001f)
 			{
-				glm::vec2 pullOffset = glm::normalize(pullVector) * pullStrength;
+				glm::vec2 pullOffset = glm::normalize(pullVector) * m_pullStrength;
 				int jointIndex = -1;
-				for (size_t i = 0; i < bodyJoints.size(); i++)
+				for (size_t i = 0; i < m_bodyJoints.size(); i++)
 				{
-					if (&bodyJoints[i] == leg.bodyJoint)
+					if (&m_bodyJoints[i] == leg.bodyJoint)
 					{
 						jointIndex = i;
 						break;
@@ -254,12 +203,12 @@ void Salamander::Move(glm::vec2 target, float deltaTime)
 
 				if (jointIndex != -1)
 				{
-					int count = bodyJoints.size() - jointIndex;
-					for (size_t j = jointIndex; j < bodyJoints.size(); j++)
+					int count = m_bodyJoints.size() - jointIndex;
+					for (size_t j = jointIndex; j < m_bodyJoints.size(); j++)
 					{
 						// Pull strength decreasing
 						float factor = 1.0f - float(j - jointIndex) / float(count);
-						bodyJoints[j].position += pullOffset * factor;
+						m_bodyJoints[j].position += pullOffset * factor;
 					}
 				}
 			}

@@ -1,33 +1,35 @@
 #pragma once
 #include "IK/Joint.h"
 #include "Salamander/Leg.h"
-#include "Utils/Shader.h"
+#include <unordered_map>
+
+struct SalamanderConfig {
+    int numJoints = 17;
+    float startX = 0.1f;
+    float startY = 0.1f;
+    float yStep = 0.06f;
+    float startWidth = 1.0f;
+    float widthStep = 0.05f;
+    std::vector<int> legIndices;
+    std::unordered_map<int, float> overrideWidths;
+};
 
 class Salamander
 {
 public:
-	std::vector<Joint> bodyJoints;
-	std::vector<float> distances;
-	std::vector<Leg> legs;
-	float speed = 5.0f;
-	float pullStrength = 0.002f;
-	Shader* circleShader;
+    Salamander(const SalamanderConfig& config);
+    //~Salamander();
 
-	Salamander(Shader* circleShader);
-	~Salamander();
-
-	void AddBodyJoint(float x, float y, float width, bool hasLegs = false);
-	void AddLeg(int bodyIndex);
-	void UpdateBuffer();
-	void GenerateCircleVertices(int segments = 12);
-	void Draw();
-	void Move(glm::vec2 target, float deltaTime);
+    void AddBodyJoint(float x, float y, float width, bool hasLegs = false);
+    void AddLeg(int bodyIndex);
+    void Move(glm::vec2 target, float deltaTime);
+    //void Update();
+    void Draw();
 
 private:
-	GLuint VAO, VBO;
-	std::vector<glm::vec2> vertices;
-	GLuint circleVAO, circleVBO;
-	std::vector<glm::vec2> circleVertices;
-	GLuint legVAO, legVBO;
-	std::vector<glm::vec2> legVertices;
+    std::vector<Joint> m_bodyJoints;
+    std::vector<float> m_distances;
+    std::vector<Leg> m_legs;
+    float m_speed = 150.0f;
+    float m_pullStrength = 0.75f;
 };

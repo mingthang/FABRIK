@@ -3,6 +3,8 @@
 
 #include <iostream>
 
+#include <Renderer/Renderer.h>
+#include <AssetManager/AssetManager.h>
 #include "Salamander/Salamander.h"
 #include "IK/FABRIK.h"
 
@@ -48,24 +50,24 @@ int main()
 	// configure global opengl state
 	glEnable(GL_DEPTH_TEST);
 
-	// Shader
-	Shader circleShader("./src/Salamander/circle.vs", "./src/Salamander/circle.fs");
-
 	// Create Salamander
-	Salamander salamander(&circleShader);
-	for (int i = 0; i < 17; i++) {
-		float y = 0.1 - (i * 0.06f);  
-		float width = 1.0f - (i * 0.05f); 
-		//std::cout << i << ": " << y << " " << width << std::endl;
-		salamander.AddBodyJoint(0.0f, y, width);
-	}
+	SalamanderConfig config;
+	config.numJoints = 17;
+	config.startY = 200.0f;
+	config.startY = 300.0f;    
+	config.yStep = 20.0f;
+	config.startWidth = 60.0f;
+	config.widthStep = 3.0f;
+	config.legIndices = { 1, 7 };
+	config.overrideWidths = {
+		{ 0, 56.0f },
+		{ 1, 40.0f },
+		{ 2, 48.0f }
+	};
+	Salamander salamander(config);
 
-	salamander.bodyJoints[0].width = 0.9f;
-	salamander.bodyJoints[1].width = 0.5f;
-	salamander.AddLeg(1);
-	salamander.AddLeg(7);
-	salamander.bodyJoints[2].width = 0.7f;
-
+	AssetManager::Init();
+	Renderer::Init(SCR_WIDTH, SCR_HEIGHT);
 	// render loop
 	while (!glfwWindowShouldClose(window))
 	{
@@ -80,12 +82,14 @@ int main()
 
 		salamander.Move(mousePos, deltaTime);
 		salamander.Draw();
+		Renderer::SalamanderPass();
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
 
+	Renderer::CleanUp();
 	return 0;
 }
 
@@ -96,8 +100,8 @@ void FramebufferSizeCallback(GLFWwindow* window, int width, int height)
 
 void MouseCallback(GLFWwindow* window, double xPos, double yPos)
 {
-	float x = (float)xPos / SCR_WIDTH * 2.0f - 1.0f;  // Convert to [-1,1]
-	float y = 1.0f - (float)yPos / SCR_HEIGHT * 2.0f; // Convert to [-1,1], invert Y
+	//float x = (float)xPos / SCR_WIDTH * 2.0f - 1.0f;  // Convert to [-1,1]
+	//float y = 1.0f - (float)yPos / SCR_HEIGHT * 2.0f; // Convert to [-1,1], invert Y
 
-	mousePos = glm::vec2(x, y);
+	mousePos = glm::vec2((float)xPos, (float)yPos);
 }

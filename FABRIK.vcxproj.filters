@@ -33,6 +33,24 @@
     <ClCompile Include="src\Salamander\Salamander.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Utils\Util_math.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\Renderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\Types\Mesh2D.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\Types\Model2D.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AssetManager\AssetManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\API\OpenGL\Types\GL_shader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\IK\Joint.h">
@@ -44,9 +62,6 @@
     <ClInclude Include="src\IK\FABRIK.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Utils\Shader.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Salamander\Leg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -56,15 +71,30 @@
     <ClInclude Include="src\Utils\Util.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Renderer\Renderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\Types\Mesh2D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\Types\Model2D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AssetManager\AssetManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\API\OpenGL\Types\GL_shader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />
     <None Include=".gitattributes" />
     <None Include="README.md" />
-    <None Include="src\Salamander\circle.vs">
+    <None Include="res\shaders\debug.vert">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="src\Salamander\circle.fs">
+    <None Include="res\shaders\debug.frag">
       <Filter>Source Files</Filter>
     </None>
     <None Include="src\Utils\pixelate.vs" />

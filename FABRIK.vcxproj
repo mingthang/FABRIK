@@ -137,16 +137,26 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\glad.c" />
+    <ClCompile Include="src\API\OpenGL\Types\GL_shader.cpp" />
+    <ClCompile Include="src\AssetManager\AssetManager.cpp" />
     <ClCompile Include="src\IK\FABRIK.cpp" />
     <ClCompile Include="src\Main.cpp" />
+    <ClCompile Include="src\Renderer\Renderer.cpp" />
+    <ClCompile Include="src\Renderer\Types\Mesh2D.cpp" />
+    <ClCompile Include="src\Renderer\Types\Model2D.cpp" />
     <ClCompile Include="src\Salamander\Leg.cpp" />
     <ClCompile Include="src\Salamander\Salamander.cpp" />
+    <ClCompile Include="src\Utils\Util_math.cpp" />
     <ClCompile Include="src\Utils\EngineDefines.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\API\OpenGL\Types\GL_shader.h" />
+    <ClInclude Include="src\AssetManager\AssetManager.h" />
+    <ClInclude Include="src\Renderer\Renderer.h" />
+    <ClInclude Include="src\Renderer\Types\Mesh2D.h" />
+    <ClInclude Include="src\Renderer\Types\Model2D.h" />
     <ClInclude Include="src\Salamander\Leg.h" />
     <ClInclude Include="src\Salamander\LegTypes.h" />
-    <ClInclude Include="src\Utils\Shader.h" />
     <ClInclude Include="src\IK\FABRIK.h" />
     <ClInclude Include="src\IK\Joint.h" />
     <ClInclude Include="src\Salamander\Salamander.h" />
@@ -155,8 +165,8 @@
   <ItemGroup>
     <None Include=".gitattributes" />
     <None Include=".gitignore" />
-    <None Include="src\Salamander\circle.fs" />
-    <None Include="src\Salamander\circle.vs" />
+    <None Include="res\shaders\debug.frag" />
+    <None Include="res\shaders\debug.vert" />
     <None Include="README.md" />
     <None Include="src\Utils\pixelate.fs" />
     <None Include="src\Utils\pixelate.vs" />

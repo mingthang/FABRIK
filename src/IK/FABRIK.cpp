@@ -17,7 +17,7 @@ void FABRIK::SolveSEE(std::vector<Joint>& joints, std::vector<float>& distances,
 	if (distBT <= totalDist)
 	{
 		float distET = glm::distance(joints[joints.size()-1].position, target); // EE -> target distance
-		while (distET > EPSILON)
+		while (distET > 0.01f)
 		{
 			// STAGE 1: FORWARD REACHING
 			joints[joints.size()-1].position = target;

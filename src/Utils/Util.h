@@ -2,23 +2,14 @@
 
 #include <glm/common.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <vector>
 
 namespace Util {
 
-    float SignedAngle(const glm::vec2& v1, const glm::vec2& v2)
-    {
-        // Calculate the angle between the two vectors
-        float angle = glm::atan(v2.y, v2.x) - glm::atan(v1.y, v1.x);
+    // Math
+    float SignedAngle(const glm::vec2& v1, const glm::vec2& v2);
+    glm::vec2 ConstrainDistance(glm::vec2 point, glm::vec2 anchor, float distance, float max_distance);
 
-        // Normalize the angle to be within the range of -pi to pi
-        if (angle > glm::pi<float>()) {
-            angle -= 2.0f * glm::pi<float>();
-        }
-        else if (angle < -glm::pi<float>()) {
-            angle += 2.0f * glm::pi<float>();
-        }
-
-        return angle;
-    }
-
+    std::pair<glm::vec2, glm::vec2> ComputeAABB(const std::vector<glm::vec2>& vertices);
+    glm::vec2 QuadraticBezier(const glm::vec2& p0, const glm::vec2& p1, const glm::vec2& p2, float t);
 }

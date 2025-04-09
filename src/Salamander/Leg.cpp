@@ -1,6 +1,7 @@
 #include "Leg.h"
 
 #include <iostream>
+#include <Renderer/Renderer.h>
 
 Leg::Leg(Joint* bodyJoint, ELegSide side)
 	: bodyJoint(bodyJoint), side(side), foot(glm::vec2(0.0f), footWidth, nullptr)
@@ -35,10 +36,13 @@ void Leg::SolveLegIK(glm::vec2 target)
     if (!bodyJoint) return;
 
     std::vector<Joint> joints = { *bodyJoint, elbow, foot };
-    std::vector<float> distances = { legLength * 0.5f, legLength * 0.5f };
+    std::vector<float> distances = {
+        glm::distance(joints[0].position, joints[1].position),
+        glm::distance(joints[1].position, joints[2].position)
+    };
 
     FABRIK::SolveSEE(joints, distances, target);
 
-    elbow = joints[1];
-    foot = joints[2];
+    elbow.position = joints[1].position;
+    foot.position = joints[2].position;
 }

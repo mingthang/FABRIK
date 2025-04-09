@@ -12,11 +12,13 @@ public:
 	ELegSide side;
 	Joint foot;
 	Joint elbow;
-	float footWidth = 0.2f;
-	float legLength = 0.15f;
+	float footWidth = 7.0f;
+	float legLength = 50.0f;
 	// step Position
 	glm::vec2 stepPos;
 	bool isStepping = false;
+
+	glm::vec2 prevFacingDir;
 
 
 	Leg(Joint* bodyJoint, ELegSide side);
