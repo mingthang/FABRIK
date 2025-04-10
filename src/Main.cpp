@@ -7,6 +7,7 @@
 #include <AssetManager/AssetManager.h>
 #include "Salamander/Salamander.h"
 #include "IK/FABRIK.h"
+#include <Utils/Debug.h>
 
 unsigned int SCR_WIDTH = 800;
 unsigned int SCR_HEIGHT = 600;
@@ -58,7 +59,7 @@ int main()
 	config.yStep = 20.0f;
 	config.startWidth = 60.0f;
 	config.widthStep = 3.0f;
-	config.legIndices = { 1, 7 };
+	config.legIndices = { 1, 6 };
 	config.overrideWidths = {
 		{ 0, 56.0f },
 		{ 1, 40.0f },

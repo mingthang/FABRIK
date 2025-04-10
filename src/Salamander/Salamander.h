@@ -26,6 +26,7 @@ public:
     //void Update();
     void Draw();
 
+
 private:
     std::vector<Joint> m_bodyJoints;
     std::vector<float> m_distances;
@@ -33,4 +34,9 @@ private:
 	std::vector<int> m_legIndices;
     float m_speed = 200.0f;
     float m_pullStrength = 5.0f;
+
+    // for debug
+   	bool IK = true;
+    bool torque = true;
+
 };
