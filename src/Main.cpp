@@ -7,6 +7,7 @@
 #include <AssetManager/AssetManager.h>
 #include "Salamander/Salamander.h"
 #include "IK/FABRIK.h"
+#include <Utils/Debug.h>
 
 unsigned int SCR_WIDTH = 800;
 unsigned int SCR_HEIGHT = 600;
@@ -16,6 +17,10 @@ glm::vec2 mousePos(0.0f, 0.0f);
 // Timing
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
+
+DebugMode g_DebugMode = DebugMode::A;
+bool bIK = false;
+bool btorque = false;
 
 void FramebufferSizeCallback(GLFWwindow* window, int width, int height);
 void MouseCallback(GLFWwindow* window, double xPos, double yPos);
@@ -40,6 +45,16 @@ int main()
 	glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);
 	glfwSetCursorPosCallback(window, MouseCallback);
 
+	glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
+		if (action == GLFW_PRESS) {
+			if (key == GLFW_KEY_1) g_DebugMode = DebugMode::A;
+			else if (key == GLFW_KEY_2) g_DebugMode = DebugMode::B;
+			else if (key == GLFW_KEY_3) g_DebugMode = DebugMode::C;
+			else if (key == GLFW_KEY_4) bIK = (bIK == false) ? true : false;
+			else if (key == GLFW_KEY_5) btorque = (btorque == false) ? true : false;
+		}
+		});
+
 	// glad: load all OpenGL function pointers
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
@@ -58,7 +73,7 @@ int main()
 	config.yStep = 20.0f;
 	config.startWidth = 60.0f;
 	config.widthStep = 3.0f;
-	config.legIndices = { 1, 7 };
+	config.legIndices = { 1, 6 };
 	config.overrideWidths = {
 		{ 0, 56.0f },
 		{ 1, 40.0f },

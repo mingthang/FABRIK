@@ -2,7 +2,8 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include <list>
 #include <vector>
-#include "Utils/Util.h"
+#include <Utils/Util.h>
+#include <Utils/Debug.h>
 #include <Renderer/Types/Model2D.h>
 #include <AssetManager/AssetManager.h>
 #include <Renderer/Renderer.h>
@@ -52,35 +53,68 @@ void Salamander::AddLeg(int bodyIndex) {
 }
 
 void Salamander::Draw() {
-	// Draw body
-	for (size_t i = 0; i < m_bodyJoints.size() - 1; ++i) {
-		glm::vec2 p0 = m_bodyJoints[i].position;
-		glm::vec2 p1 = m_bodyJoints[i + 1].position;
-		Renderer::DrawLine(p0, p1);
-		if (std::find(m_legIndices.begin(), m_legIndices.end(), i) != m_legIndices.end())
-			Renderer::DrawCircle(m_bodyJoints[i].position, m_bodyJoints[i].width * 0.25f);
-		else
-			Renderer::DrawCircle(m_bodyJoints[i].position, m_bodyJoints[i].width * 0.25f);
-	}
 
-	// Draw legs
-	for (const auto& leg : m_legs) {
-		glm::vec2 p0 = leg.bodyJoint->position;
-		glm::vec2 p1 = leg.elbow.position;
-		glm::vec2 p2 = leg.foot.position;
+	this->IK = bIK;
+	this->torque = btorque;
 
-		const int segmentCount = 6;
-		for (int i = 0; i < segmentCount; ++i) {
-			float t0 = float(i) / segmentCount;
-			float t1 = float(i + 1) / segmentCount;
-
-			glm::vec2 a = Util::QuadraticBezier(p0, p1, p2, t0);
-			glm::vec2 b = Util::QuadraticBezier(p0, p1, p2, t1);
-
-			Renderer::DrawLine(a, b);
+	switch (g_DebugMode) {
+	case DebugMode::A:
+		for (size_t i = 0; i < m_bodyJoints.size(); ++i) {
+			Renderer::DrawPoint(m_bodyJoints[i].position);
 		}
+		break;
+	case DebugMode::B:
+		for (size_t i = 0; i < m_bodyJoints.size() - 1; ++i) {
+			glm::vec2 p0 = m_bodyJoints[i].position;
+			glm::vec2 p1 = m_bodyJoints[i + 1].position;
+			Renderer::DrawLine(p0, p1);
+			if (std::find(m_legIndices.begin(), m_legIndices.end(), i) != m_legIndices.end())
+				Renderer::DrawCircle(m_bodyJoints[i].position, m_bodyJoints[i].width * 0.25f);
+			else
+				Renderer::DrawCircle(m_bodyJoints[i].position, m_bodyJoints[i].width * 0.25f);
+		}
+		break;
+	case DebugMode::C:
+		for (size_t i = 0; i < m_bodyJoints.size() - 1; ++i) {
+			glm::vec2 p0 = m_bodyJoints[i].position;
+			glm::vec2 p1 = m_bodyJoints[i + 1].position;
+			Renderer::DrawLine(p0, p1);
+			if (std::find(m_legIndices.begin(), m_legIndices.end(), i) != m_legIndices.end())
+				Renderer::DrawCircle(m_bodyJoints[i].position, m_bodyJoints[i].width * 0.25f, glm::vec3(0.294f, 0.0f, 0.51f), true);
+			else 
+				Renderer::DrawCircle(m_bodyJoints[i].position, m_bodyJoints[i].width * 0.25f);
+		}
+		// Draw legs
+		if (IK) {
+			for (const auto& leg : m_legs) {
+				glm::vec2 p0 = leg.bodyJoint->position;
+				glm::vec2 p1 = leg.elbow.position;
+				glm::vec2 p2 = leg.foot.position;
 
-		Renderer::DrawCircle(leg.foot.position, leg.footWidth, glm::vec3(0.294f, 0.0f, 0.51f), true);
+				const int segmentCount = 6;
+				for (int i = 0; i < segmentCount; ++i) {
+					float t0 = float(i) / segmentCount;
+					float t1 = float(i + 1) / segmentCount;
+
+					glm::vec2 a = Util::QuadraticBezier(p0, p1, p2, t0);
+					glm::vec2 b = Util::QuadraticBezier(p0, p1, p2, t1);
+
+					Renderer::DrawLine(a, b);
+				}
+
+				Renderer::DrawCircle(leg.foot.position, leg.footWidth, glm::vec3(0.8f, 0.0f, 0.8f), true);
+			}
+		}
+		else {
+			for (const auto& leg : m_legs) {
+				glm::vec2 p0 = leg.bodyJoint->position;
+				glm::vec2 p1 = leg.foot.position;
+
+				Renderer::DrawLine(p0, p1);
+				Renderer::DrawCircle(leg.foot.position, leg.footWidth, glm::vec3(0.8f, 0.0f, 0.8f), true);
+			}
+		}
+		break;
 	}
 }
 
@@ -161,53 +195,72 @@ void Salamander::Move(glm::vec2 target, float deltaTime)
 			glm::vec2 target;
 			leg.stepPos = leg.ComputeStepPosition();
 
-			if (moveDist >= distanceToStep) {
-				target = leg.stepPos;
-				leg.isStepping = false;
-				leg.bodyJoint->isLegStepping = false;
-			}
-			else {
-				glm::vec2 direction = glm::normalize(leg.stepPos - leg.foot.position);
-				target = leg.foot.position + direction * moveDist;
-			}
-
-			// TODO: Fix this mess
-			std::vector<Joint> joints = {
-				*leg.bodyJoint,
-				leg.elbow,
-				leg.foot
-			};
-			std::vector<float> distances = {
-				leg.legLength * 0.5f, leg.legLength * 0.5f
-			};
-
-			FABRIK::SolveSEE(joints, distances, target);
-
-			leg.elbow.position = joints[1].position;
-			leg.foot.position = joints[2].position;
-
-			glm::vec2 pullVector = leg.foot.position - leg.bodyJoint->position;
-			float len = glm::length(pullVector);
-			if (len > 0.001f)
-			{
-				glm::vec2 pullDir = pullVector / len;
-				glm::vec2 rawOffset = pullDir * m_pullStrength;
-				int jointIndex = -1;
-				for (size_t i = 0; i < m_bodyJoints.size(); ++i) {
-					if (&m_bodyJoints[i] == leg.bodyJoint) {
-						jointIndex = static_cast<int>(i);
-						break;
-					}
+			if (!IK) {
+				if (moveDist >= distanceToStep) {
+					target = leg.stepPos;
+					leg.isStepping = false;
+					leg.bodyJoint->isLegStepping = false;
+				}
+				else {
+					glm::vec2 direction = glm::normalize(leg.stepPos - leg.foot.position);
+					target = leg.foot.position + direction * moveDist;
 				}
 
-				int count = m_bodyJoints.size() - jointIndex;
+				leg.foot.position = target;
+			}
 
-				for (size_t j = jointIndex; j < m_bodyJoints.size(); j++)
+			else {
+				if (moveDist >= distanceToStep) {
+					target = leg.stepPos;
+					leg.isStepping = false;
+					leg.bodyJoint->isLegStepping = false;
+				}
+				else {
+					glm::vec2 direction = glm::normalize(leg.stepPos - leg.foot.position);
+					target = leg.foot.position + direction * moveDist;
+				}
+
+				// TODO: Fix this mess
+				std::vector<Joint> joints = {
+					*leg.bodyJoint,
+					leg.elbow,
+					leg.foot
+				};
+				std::vector<float> distances = {
+					leg.legLength * 0.5f, leg.legLength * 0.5f
+				};
+
+				FABRIK::SolveSEE(joints, distances, target);
+
+				leg.elbow.position = joints[1].position;
+				leg.foot.position = joints[2].position;
+			}
+
+			// Apply torque
+			if (torque) {
+				glm::vec2 pullVector = leg.foot.position - leg.bodyJoint->position;
+				float len = glm::length(pullVector);
+				if (len > 0.001f)
 				{
-					float factor = 1.0f - float(j - jointIndex) / float(count);
-					glm::vec2 desired = m_bodyJoints[j].position + rawOffset * factor;
-					float damp = 0.2f;
-					m_bodyJoints[j].position = glm::mix(m_bodyJoints[j].position, desired, damp);
+					glm::vec2 pullDir = pullVector / len;
+					glm::vec2 rawOffset = pullDir * m_pullStrength;
+					int jointIndex = -1;
+					for (size_t i = 0; i < m_bodyJoints.size(); ++i) {
+						if (&m_bodyJoints[i] == leg.bodyJoint) {
+							jointIndex = static_cast<int>(i);
+							break;
+						}
+					}
+
+					int count = m_bodyJoints.size() - jointIndex;
+
+					for (size_t j = jointIndex; j < m_bodyJoints.size(); j++)
+					{
+						float factor = 1.0f - float(j - jointIndex) / float(count);
+						glm::vec2 desired = m_bodyJoints[j].position + rawOffset * factor;
+						float damp = 0.2f;
+						m_bodyJoints[j].position = glm::mix(m_bodyJoints[j].position, desired, damp);
+					}
 				}
 			}
 		}

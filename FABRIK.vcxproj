@@ -160,6 +160,7 @@
     <ClInclude Include="src\IK\FABRIK.h" />
     <ClInclude Include="src\IK\Joint.h" />
     <ClInclude Include="src\Salamander\Salamander.h" />
+    <ClInclude Include="src\Utils\Debug.h" />
     <ClInclude Include="src\Utils\Util.h" />
   </ItemGroup>
   <ItemGroup>
